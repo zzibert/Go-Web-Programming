@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+  "github.com/zzibert/Go-Web-Programming/ChitChat/data"
+)
 
 func authenticate(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
