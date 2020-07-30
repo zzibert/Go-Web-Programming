@@ -2,8 +2,14 @@ package main
 
 import (
   "fmt"
+  "encoding/json"
   "net/http"
 )
+
+type Post struct {
+  User string
+  Threads []string
+}
 
 func writeExample(w http.ResponseWriter, r *http.Request) {
   str := `<html>
@@ -22,6 +28,16 @@ func headerExample(w http.ResponseWriter, r *http.Request) {
   w.WriteHeader(302)
 }
 
+func jsonExample(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Content-Type", "application/json")
+  post := &Post{
+    User: "Sau Sheong",
+    Threads: []string{"first", "second", "third"},
+  }
+  json, _ := json.Marshal(post)
+  w.Write(json)
+}
+
 func main() {
   server := http.Server{
     Addr: "127.0.0.1:8080",
@@ -29,6 +45,7 @@ func main() {
   http.HandleFunc("/write", writeExample)
   http.HandleFunc("/writeHeader", writeHeaderExample)
   http.HandleFunc("/redirect", headerExample)
+  http.HandleFunc("/json", jsonExample)
   server.ListenAndServe()
 }
 
