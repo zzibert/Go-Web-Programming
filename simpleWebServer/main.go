@@ -1,51 +1,29 @@
 package main
 
 import (
-  "fmt"
-  "encoding/json"
   "net/http"
 )
 
-type Post struct {
-  User string
-  Threads []string
-}
-
-func writeExample(w http.ResponseWriter, r *http.Request) {
-  str := `<html>
-  <head><title>Go Web Programming</title></head> <body><h1>Hello World</h1></body>
-  </html>`
-  w.Write([]byte(str))
-}
-
-func writeHeaderExample(w http.ResponseWriter, r *http.Request) {
-  w.WriteHeader(501)
-  fmt.Fprintln(w, "no such service, try next door")
-}
-
-func headerExample(w http.ResponseWriter, r *http.Request) {
-  w.Header().Set("Location", "http://google.com")
-  w.WriteHeader(302)
-}
-
-func jsonExample(w http.ResponseWriter, r *http.Request) {
-  w.Header().Set("Content-Type", "application/json")
-  post := &Post{
-    User: "Sau Sheong",
-    Threads: []string{"first", "second", "third"},
+func setCookie(w http.ResponseWriter, r *http.Request){
+  c1 := http.Cookie{
+    Name: "first_cookie",
+    Value: "Go Web Programming",
+    HttpOnly: true,
   }
-  json, _ := json.Marshal(post)
-  w.Write(json)
+  c2 := http.Cookie{
+    Name: "second_cookie",
+    Value: "Manning Publications Co",
+    HttpOnly: true,
+  }
+  w.Header().Set("Set-Cookie", c1.String())
+  w.Header().Add("Set-Cookie", c2.String())
 }
 
 func main() {
   server := http.Server{
     Addr: "127.0.0.1:8080",
   }
-  http.HandleFunc("/write", writeExample)
-  http.HandleFunc("/writeHeader", writeHeaderExample)
-  http.HandleFunc("/redirect", headerExample)
-  http.HandleFunc("/json", jsonExample)
+  http.HandleFunc("/set_cookie", setCookie)
   server.ListenAndServe()
 }
 
