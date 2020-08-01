@@ -1,47 +1,87 @@
 package main
 
 import (
-	"net/http"
-	"github.com/zzibert/Go-Web-Programming/ChitChat/data"
+  "database/sql"
+  "fmt"
+  _ "github.com/lib/pq"
 )
 
-func main() {
-
-	mux := http.NewServeMux()
-	files := http.FileServer(http.Dir("/public"))
-	mux.Handle("/static/", http.StripPrefix("/static/", files))
-
-	mux.HandleFunc("/", index)
-	// mux.HandleFunc("/err", err)
-
-	// mux.HandleFunc("/login", login)
-	// mux.HandleFunc("/logout", logout)
-	// mux.HandleFunc("signup", signup)
-	// mux.HandleFunc("/signup_account", signupAccount)
-	// mux.HandleFunc("/authenticate", authenticate)
-
-	// mux.HandleFunc("/thread/new", newThread)
-	// mux.HandleFunc("/thread/create", createThread)
-	// mux.HandleFunc("/thread/post", postThread)
-	// mux.HandleFunc("/thread/read", readThread)
-
-	server := &http.Server{
-		Addr:    "0.0.0.0:8080",
-		Handler: mux,
-	}
-
-	server.ListenAndServe()
+type Post struct {
+  Id int
+  Content string
+  Author string
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	threads, err := data.Threads()
-	if err == nil {
-		_, err := session(w, r)
+var Db *sql.DB
 
-		if err != nil {
-			generateHTML(w, threads, "layout", "public.navbar", "index")
-		} else {
-			generateHTML(w, threads, "layout", "private.navbar", "index")
-		}
-	}
+func init() {
+  var err error
+  Db, err = sql.Open("postgres", "user=zzibert password=nekineki sslmode=disable")
+  if err != nil {
+    panic(err)
+  }
+}
+
+func Posts(limit int) (posts []Post, err error) {
+  rows, err := Db.Query("select id, content, author from posts limit $1", limit)
+  if err != nil {
+    return
+  }
+  for rows.Next() {
+    post := Post{}
+    err = rows.Scan(&post.Id, &post.Content, &post.Author)
+    if err != nil {
+      return
+    }
+    posts = append(posts, post)
+  }
+  rows.Close()
+  return
+}
+
+func GetPost(id int) (post Post, err error) {
+  post = Post{}
+  err = Db.QueryRow("select id, content, author from posts where id = $1", id).Scan(&post.Id, &post.Content, &post.Author)
+  return
+}
+
+func (post *Post) Create() (err error) {
+  statement := "insert into posts (content, author) values ($1, $2) returning id"
+  stmt, err := Db.Prepare(statement)
+  if err != nil {
+    return
+  }
+  defer stmt.Close()
+  err = stmt.QueryRow(post.Content, post.Author).Scan(&post.Id)
+  return
+}
+
+func (post *Post) Update() (err error) {
+  _, err = Db.Exec("update posts set content = $2, author = 3$ where id = $1", post.Id, post.Content, post.Author)
+  return
+}
+
+func (post *Post) Delete() (err error) {
+  _, err = Db.Exec("delete from posts where id = $1", post.Id)
+  return
+}
+
+func main() {
+  post := Post{Content: "Hello World!", Author: "Sau Sheong"}
+
+  fmt.Println(post)
+  post.Create()
+  fmt.Println(post)
+
+  readPost, _ := GetPost(post.Id)
+  fmt.Println(readPost)
+
+  readPost.Content = "Bonjour monde!"
+  readPost.Author = "Pierre"
+  readPost.Update()
+
+  posts, _ := Posts(5)
+  fmt.Println(posts)
+
+  readPost.Delete()
 }
