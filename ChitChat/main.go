@@ -16,7 +16,8 @@ var Db *sql.DB
 
 func init() {
   var err error
-  Db, err = sql.Open("postgres", "user=zzibert password=nekineki sslmode=disable")
+
+  Db, err = sql.Open("postgres", "user=zzibert dbname=postgres password=nekineki port=5432 sslmode=disable")
   if err != nil {
     panic(err)
   }
@@ -42,6 +43,7 @@ func Posts(limit int) (posts []Post, err error) {
 func GetPost(id int) (post Post, err error) {
   post = Post{}
   err = Db.QueryRow("select id, content, author from posts where id = $1", id).Scan(&post.Id, &post.Content, &post.Author)
+
   return
 }
 
@@ -57,7 +59,7 @@ func (post *Post) Create() (err error) {
 }
 
 func (post *Post) Update() (err error) {
-  _, err = Db.Exec("update posts set content = $2, author = 3$ where id = $1", post.Id, post.Content, post.Author)
+  _, err = Db.Exec("update posts set content = $2, author = $3 where id = $1", post.Id, post.Content, post.Author)
   return
 }
 
@@ -76,11 +78,11 @@ func main() {
   readPost, _ := GetPost(post.Id)
   fmt.Println(readPost)
 
-  readPost.Content = "Bonjour monde!"
+  readPost.Content = "Bonjour Monde!"
   readPost.Author = "Pierre"
   readPost.Update()
 
-  posts, _ := Posts(5)
+  posts, _ := Posts(1)
   fmt.Println(posts)
 
   readPost.Delete()
