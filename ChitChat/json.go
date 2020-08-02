@@ -1,12 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-)
-
 type Post struct {
 	Id       int       `json:"id"`
 	Content  string    `json:"content"`
@@ -26,20 +19,27 @@ type Comment struct {
 }
 
 func main() {
-	jsonFile, err := os.Open("post.json")
-	if err != nil {
-		fmt.Println("Error opening JSON file: ", err)
-		return
+	comments := []Comment{
+		Comment{
+			Id:      3,
+			Content: "Have a great day!",
+			Author:  "Adam",
+		},
+		Comment{
+			Id:      4,
+			Content: "How are you today?",
+			Author:  "Betty",
+		},
 	}
 
-	defer jsonFile.Close()
-	jsonData, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		fmt.Println("Error reading JSON data: ", err)
-		return
+	post := Post{
+		Id:      1,
+		Content: "Hello World!",
+		Author: Author{
+			Id:   2,
+			Name: "Sau Sheong",
+		},
+		Comments: comments,
 	}
 
-	var post Post
-	json.Unmarshal(jsonData, &post)
-	fmt.Println(post)
 }
