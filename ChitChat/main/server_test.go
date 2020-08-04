@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 
 func setUp() {
 	mux = http.NewServeMux()
-	mux.HandleFunc("/post/", handleRequest)
+	mux.HandleFunc("/post/", handleRequest(&FakePost{}))
 	writer = httptest.NewRecorder()
 }
 
@@ -31,9 +31,9 @@ func TestHandleGet(t *testing.T) {
 	if writer.Code != 200 {
 		t.Errorf("Response code is %v", writer.Code)
 	}
+
 	var post Post
 	json.Unmarshal(writer.Body.Bytes(), &post)
-
 	if post.Id != 1 {
 		t.Errorf("Cannot retrieve JSON post")
 	}
