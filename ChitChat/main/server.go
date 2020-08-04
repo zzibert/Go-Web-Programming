@@ -23,10 +23,13 @@ type Post struct {
 }
 
 func main() {
+
+	var err error
+	db, err := sql.Open("postgres", "user=zzibert dbname=postgres password=nekineki port=5432 sslmode=disable")
 	server := http.Server{
-		Addr: "127.0.0.1:8080",
+		Addr: ":8080",
 	}
-	http.HandleFunc("/post/", handleRequest())
+	http.HandleFunc("/post/", handleRequest(&Post{Db: db}))
 	server.ListenAndServe()
 }
 
