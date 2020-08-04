@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"path"
 	"strconv"
@@ -23,11 +22,35 @@ type Post struct {
 	Author  string `json:"author"`
 }
 
+type FakePost struct {
+	Id      int
+	Content string
+	Author  string
+}
+
+func (post *FakePost) fetch(id int) (err error) {
+	post.Id = id
+	return
+}
+
+func (post *FakePost) create() (err error) {
+	return
+}
+
+func (post *FakePost) update() (err error) {
+	return
+}
+
+func (post *FakePost) delete() (err error) {
+	return
+}
+
 func main() {
 
+	var err error
 	db, err := sql.Open("postgres", "user=zzibert dbname=postgres password=nekineki port=5432 sslmode=disable")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	server := http.Server{
