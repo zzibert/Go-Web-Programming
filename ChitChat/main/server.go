@@ -1,13 +1,22 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"path"
 	"strconv"
 )
 
+type Text interface {
+	fetch(id int) (err error)
+	create() (err error)
+	update() (err error)
+	delete() (err error)
+}
+
 type Post struct {
+	Db      *sql.DB
 	Id      int    `json:"id"`
 	Content string `json:"content"`
 	Author  string `json:"author"`
