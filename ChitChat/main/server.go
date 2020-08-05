@@ -6,21 +6,9 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+
+	. "github.com/zzibert/Go-Web-Programming/ChitChat/data"
 )
-
-type Text interface {
-	fetch(id int) (err error)
-	create() (err error)
-	update() (err error)
-	delete() (err error)
-}
-
-type Post struct {
-	Db      *sql.DB
-	Id      int    `json:"id"`
-	Content string `json:"content"`
-	Author  string `json:"author"`
-}
 
 func main() {
 

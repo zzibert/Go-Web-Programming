@@ -1,8 +1,24 @@
-package main
+package data
 
 import (
+	"database/sql"
+
 	_ "github.com/lib/pq"
 )
+
+type Text interface {
+	fetch(id int) (err error)
+	create() (err error)
+	update() (err error)
+	delete() (err error)
+}
+
+type Post struct {
+	Db      *sql.DB
+	Id      int    `json:"id"`
+	Content string `json:"content"`
+	Author  string `json:"author"`
+}
 
 func (post *Post) fetch(id int) (err error) {
 	err = post.Db.QueryRow("select id, content, author from posts where id = $1", id).Scan(&post.Id, &post.Content, &post.Author)
